@@ -3,7 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "BetterRemote",
-    platforms: [.macOS(.v14)],
+    platforms: [.macOS(.v12)],
     products: [.executable(name: "BetterRemote", targets: ["RemoteFit"]), .executable(name: "RemoteFitLoginItem", targets: ["RemoteFitLoginItem"])],
     dependencies: [.package(url: "https://github.com/sparkle-project/Sparkle", from: "2.6.0")],
     targets: [

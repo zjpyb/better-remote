@@ -21,7 +21,7 @@ Better Remote 是独立开源工具，与任何远程软件无产品主副、附
 
 ## 开发环境
 
-- macOS 14+
+- macOS 12+
 - Xcode / Swift 工具链（能跑 `swift build`、`swift test`）
 
 本地构建可参考根目录 `README.md` 的构建说明，以及 `scripts/build.sh`（维护者发版脚本）。

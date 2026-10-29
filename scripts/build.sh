@@ -52,7 +52,7 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 </array>
 <key>CFBundleShortVersionString</key><string>0.9.2</string>
 <key>CFBundleVersion</key><string>198</string>
-<key>LSMinimumSystemVersion</key><string>14.0</string>
+<key>LSMinimumSystemVersion</key><string>12.0</string>
 <key>LSUIElement</key><true/>
 <key>NSHighResolutionCapable</key><true/>
 <key>CFBundleIconFile</key><string>AppIcon</string>
@@ -102,9 +102,13 @@ if ! otool -l "$APP/Contents/MacOS/BetterRemote" > "$STAGING/loadcmds.txt" || ! 
 fi
 xcrun actool "$PWD/assets/branding/AppIcon.icon" \
     --compile "$APP/Contents/Resources" --platform macosx \
-    --minimum-deployment-target 14.0 --app-icon AppIcon \
+    --minimum-deployment-target 12.0 --app-icon AppIcon \
     --output-format human-readable-text \
     --output-partial-info-plist "$STAGING/icon-info.plist"
+# macOS 12 cannot read Icon Composer renditions in Assets.car and falls back to AppIcon.icns.
+for ICON in Assets.car AppIcon.icns; do
+    [ -f "$APP/Contents/Resources/$ICON" ] || { echo "error: actool did not produce $ICON" >&2; exit 1; }
+done
 # Menu bar status item artwork (normal + active), loaded as template images.
 cp "$PWD/assets/branding/MenuBarTemplate.png" "$PWD/assets/branding/MenuBarTemplate@2x.png" "$PWD/assets/branding/MenuBarTemplateActive.png" "$PWD/assets/branding/MenuBarTemplateActive@2x.png" "$APP/Contents/Resources/"
 cp "$PWD/assets/branding/RewardQR.png" "$APP/Contents/Resources/"

@@ -8,7 +8,7 @@
 &nbsp;
 [![免费使用](https://img.shields.io/badge/%E8%B5%84%E8%B4%B9-%E5%85%8D%E8%B4%B9-brightgreen?style=flat)](#)
 &nbsp;
-[![系统要求](https://img.shields.io/badge/%E7%B3%BB%E7%BB%9F-macOS%2014%2B-0969da?style=flat)](#)
+[![系统要求](https://img.shields.io/badge/%E7%B3%BB%E7%BB%9F-macOS%2012%2B-0969da?style=flat)](#)
 
 </div>
 
@@ -105,7 +105,7 @@ https://github.com/user-attachments/assets/7c1b78d7-e8d3-4902-a371-f555cc6897a5
 
 <br><br>
 
-**[下载最新版 Better Remote](https://github.com/pincc-debug/better-remote/releases/latest/download/Better-Remote.dmg)** · 免费 · macOS 14 及以上
+**[下载最新版 Better Remote](https://github.com/pincc-debug/better-remote/releases/latest/download/Better-Remote.dmg)** · 免费 · macOS 12 及以上
 
 官网：https://betterremote.pincc.dev
 
@@ -122,7 +122,7 @@ https://github.com/user-attachments/assets/7c1b78d7-e8d3-4902-a371-f555cc6897a5
 
 ## 🛠️ 从源码构建
 
-需要 macOS 14+ 与 Swift / Xcode 工具链。
+需要 macOS 12+ 与 Swift / Xcode 工具链。
 
 ```bash
 git clone https://github.com/pincc-debug/better-remote.git
