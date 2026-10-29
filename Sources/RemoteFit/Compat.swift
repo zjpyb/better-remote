@@ -42,3 +42,28 @@ extension Animation {
         if #available(macOS 14, *) { .snappy(duration: duration) } else { .easeInOut(duration: duration) }
     }
 }
+
+extension NSRunningApplication {
+    /// macOS 14 activation is cooperative; before it a background agent must ignore the active app to bring this one forward.
+    @discardableResult
+    func activateFromAgent() -> Bool {
+        if #available(macOS 14, *) { activate() } else { activate(options: .activateIgnoringOtherApps) }
+    }
+}
+
+/// `sizingOptions` needs macOS 13; macOS 12 keeps the hosting defaults.
+extension NSHostingView {
+    func disableAutomaticSizing() {
+        if #available(macOS 13, *) { sizingOptions = [] }
+    }
+}
+
+extension NSHostingController {
+    func disableAutomaticSizing() {
+        if #available(macOS 13, *) { sizingOptions = [] }
+    }
+
+    func sizeToIntrinsicContent() {
+        if #available(macOS 13, *) { sizingOptions = [.intrinsicContentSize] }
+    }
+}

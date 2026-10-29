@@ -185,7 +185,7 @@ final class FeedbackWindowController: NSObject, NSWindowDelegate {
 
         let root = FeedbackFormView(model: model)
         let host = NSHostingController(rootView: root)
-        host.sizingOptions = [.intrinsicContentSize]
+        host.sizeToIntrinsicContent()
 
         let window = FeedbackFormWindow(
             contentRect: NSRect(x: 0, y: 0, width: 380, height: 280),
@@ -218,7 +218,7 @@ final class FeedbackWindowController: NSObject, NSWindowDelegate {
 
     private func refresh(model: FeedbackModel) {
         let host = NSHostingController(rootView: FeedbackFormView(model: model))
-        host.sizingOptions = [.intrinsicContentSize]
+        host.sizeToIntrinsicContent()
         window?.contentViewController = host
         if let window {
             window.setContentSize(fittedContentSize(for: host))
@@ -365,7 +365,7 @@ final class CoffeeWindowController: NSObject, NSWindowDelegate {
         }
 
         let host = NSHostingController(rootView: CoffeeTipView())
-        host.sizingOptions = [.intrinsicContentSize]
+        host.sizeToIntrinsicContent()
 
         let window = FeedbackFormWindow(
             contentRect: NSRect(x: 0, y: 0, width: 300, height: 360),

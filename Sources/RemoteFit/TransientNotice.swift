@@ -58,7 +58,7 @@ final class TransientNotice {
             .frame(width: width)
         let host = NSHostingView(rootView: content)
         let height = min(max(48, host.fittingSize.height), max(1, area.height - 32))
-        host.sizingOptions = []
+        host.disableAutomaticSizing()
         let window = panel ?? makePanel()
         window.contentView = NativeGlassView(content: host, cornerRadius: DesignTokens.radiusLg,
                                              contentBackdrop: DesignTokens.NS.glassBackdrop)

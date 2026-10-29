@@ -145,8 +145,8 @@ final class ShortcutSender {
             throw FitError.message("找不到目标应用")
         }
         if NSWorkspace.shared.frontmostApplication?.processIdentifier == pid { return }
-        NSApp.yieldActivation(to: app)
-        _ = app.activate()
+        if #available(macOS 14, *) { NSApp.yieldActivation(to: app) }
+        _ = app.activateFromAgent()
         let deadline = ProcessInfo.processInfo.systemUptime + 0.3
         repeat {
             try Task.checkCancellation()
@@ -190,7 +190,7 @@ final class ShortcutSender {
     private func focus(_ pid: pid_t?) {
         guard let pid, let app = NSRunningApplication(processIdentifier: pid), !app.isTerminated else { return }
         if NSWorkspace.shared.frontmostApplication?.processIdentifier == pid { return }
-        _ = app.activate()
+        _ = app.activateFromAgent()
     }
 
     static func keyboardEvent(for stroke: ShortcutStroke, source: CGEventSource?) -> CGEvent? {

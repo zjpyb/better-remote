@@ -33,7 +33,7 @@ actor WindowControllerWorker {
         log("request action=\(action.rawValue) app=\(app.bundleIdentifier ?? "unknown")")
         let window = try focusedWindow(pid: pid)
         await MainActor.run {
-            if NSWorkspace.shared.frontmostApplication?.processIdentifier != pid { _ = app.activate() }
+            if NSWorkspace.shared.frontmostApplication?.processIdentifier != pid { _ = app.activateFromAgent() }
         }
         _ = AXUIElementPerformAction(window, kAXRaiseAction as CFString)
         let axFrame = try? frame(of: window)
@@ -271,7 +271,7 @@ actor WindowControllerWorker {
         let serverWindow = windowServerID(pid: app.processIdentifier, window: window, frame: original ?? .null)
         let before = serverWindow.flatMap(windowServerFrame) ?? original
         let activated = await MainActor.run {
-            NSWorkspace.shared.frontmostApplication?.processIdentifier == app.processIdentifier || app.activate()
+            NSWorkspace.shared.frontmostApplication?.processIdentifier == app.processIdentifier || app.activateFromAgent()
         }
         guard activated else { throw FitError.message("无法切换到目标窗口") }
         let raised = AXUIElementPerformAction(window, kAXRaiseAction as CFString)

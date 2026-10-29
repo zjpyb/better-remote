@@ -212,7 +212,7 @@ final class GlassDropdownController<ID: Hashable & Sendable>: ObservableObject {
         panel.setAccessibilityRole(.menu)
         panel.setAccessibilityLabel(label)
         let host = NSHostingView(rootView: menu)
-        host.sizingOptions = []
+        host.disableAutomaticSizing()
         let glass = NativeGlassView(content: host, cornerRadius: DesignTokens.radiusLg, frame: CGRect(origin: .zero, size: frame.size),
                                     contentBackdrop: DesignTokens.NS.glassBackdrop)
         panel.contentView = glass

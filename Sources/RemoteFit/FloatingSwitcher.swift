@@ -1093,7 +1093,7 @@ final class FloatingSwitcher: NSObject {
                 // Keep the flyout open for repeated shortcuts; outside clicks dismiss it.
                 sender.enqueueTap(shortcuts[index], targetPID: app.processIdentifier)
             })
-        items.sizingOptions = []
+        items.disableAutomaticSizing()
         items.frame = container.bounds
         container.addSubview(items)
         flyout.contentView = NativeGlassView(content: container, cornerRadius: DesignTokens.radiusXl, frame: CGRect(origin: .zero, size: frame.size),

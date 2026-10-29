@@ -1051,7 +1051,7 @@ final class AppController: NSObject, NSApplicationDelegate, NSMenuDelegate {
         if settingsWindow == nil || createNew || page != nil {
             let host = NSHostingController(rootView: content)
             // The window size comes from fitSettingsWindow, not from the SwiftUI ideal size.
-            host.sizingOptions = []
+            host.disableAutomaticSizing()
             window.contentViewController = host
         }
         if settingsWindow == nil { window.setContentSize(SettingsWindowLayout.preferredSize); window.center() }

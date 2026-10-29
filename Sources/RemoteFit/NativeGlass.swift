@@ -318,7 +318,7 @@ func glassHost<Content: View>(_ content: Content, cornerRadius: CGFloat = 24) ->
 @MainActor
 func solidHost<Content: View>(_ content: Content) -> NSView {
     let host = InteractiveGlassHostingView(rootView: content)
-    host.sizingOptions = []
+    host.disableAutomaticSizing()
     host.setContentHuggingPriority(.defaultLow, for: .horizontal)
     host.setContentHuggingPriority(.defaultLow, for: .vertical)
     host.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
@@ -331,7 +331,7 @@ private func filledHost<Content: View>(_ content: Content, background: NSColor, 
     let host = InteractiveGlassHostingView(rootView: content)
     host.wantsLayer = true
     host.layer?.backgroundColor = background.cgColor
-    host.sizingOptions = []
+    host.disableAutomaticSizing()
     host.setContentHuggingPriority(.defaultLow, for: .horizontal)
     host.setContentHuggingPriority(.defaultLow, for: .vertical)
     host.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
