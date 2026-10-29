@@ -258,27 +258,37 @@ struct FeedbackFormView: View {
 
     private var trimmed: String { model.trimmed }
 
+    /// `Text.foregroundStyle` returning `Text` needs macOS 14; `foregroundColor` keeps the same look before it.
+    private var legacyPlaceholder: Text {
+        Text(FeedbackCopy.placeholder).font(.system(size: DesignTokens.fontBody, weight: .regular)).foregroundColor(Color.primary.opacity(0.32))
+    }
+
     @ViewBuilder
     private var messageField: some View {
         if #available(macOS 14, *) {
-            TextField(text: $model.message,
-                      prompt: Text(FeedbackCopy.placeholder).font(.system(size: DesignTokens.fontBody, weight: .regular)).foregroundStyle(Color.primary.opacity(0.32)),
-                      axis: .vertical) { Text(FeedbackCopy.placeholder) }
-                .textFieldStyle(.plain)
-                .font(.system(size: DesignTokens.fontBody))
-                .lineLimit(4...8)
+            verticalField(prompt: Text(FeedbackCopy.placeholder).font(.system(size: DesignTokens.fontBody, weight: .regular)).foregroundStyle(Color.primary.opacity(0.32)))
+        } else if #available(macOS 13, *) {
+            verticalField(prompt: legacyPlaceholder)
         } else {
-            // Four body lines, matching the minimum of the vertical TextField above.
+            // Four body lines, matching the minimum of the vertical TextField.
             TextEditor(text: $model.message)
                 .font(.system(size: DesignTokens.fontBody))
                 .frame(height: 64)
+                .accessibilityLabel(FeedbackCopy.placeholder)
                 .overlay(alignment: .topLeading) {
                     if model.message.isEmpty {
-                        Text(FeedbackCopy.placeholder).font(.system(size: DesignTokens.fontBody)).foregroundStyle(Color.primary.opacity(0.32))
-                            .padding(.leading, 5).allowsHitTesting(false)
+                        legacyPlaceholder.padding(.leading, 5).allowsHitTesting(false).accessibilityHidden(true)
                     }
                 }
         }
+    }
+
+    @available(macOS 13, *)
+    private func verticalField(prompt: Text) -> some View {
+        TextField(text: $model.message, prompt: prompt, axis: .vertical) { Text(FeedbackCopy.placeholder) }
+            .textFieldStyle(.plain)
+            .font(.system(size: DesignTokens.fontBody))
+            .lineLimit(4...8)
     }
 
     var body: some View {
