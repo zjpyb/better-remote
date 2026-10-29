@@ -14,7 +14,24 @@ enum IconArt {
     /// Drawn from icons-v1/copy.svg instead of the SF Symbol.
     static let customCopy = "doc.on.doc"
 
-    static func displaySymbol(_ name: String) -> String { outline[name] ?? name }
+    /// Symbols newer than macOS 12 mapped to one it has; used only when the running system lacks the symbol.
+    static let legacySymbols: [String: String] = [
+        "clipboard": "doc.on.clipboard",
+        "macbook.and.iphone": "display.2",
+        "arrow.down.right.and.arrow.up.left.square": "arrow.down.right.and.arrow.up.left",
+        "arrow.up.left.and.arrow.down.right.square": "arrow.up.left.and.arrow.down.right",
+        "gauge.with.dots.needle.33percent": "speedometer",
+        "chevron.up.2": "chevron.up",
+        "chevron.down.2": "chevron.down",
+        "list.bullet.clipboard": "list.bullet",
+        "magnet": "pin.fill",
+    ]
+
+    static func displaySymbol(_ name: String) -> String {
+        let shown = outline[name] ?? name
+        guard let fallback = legacySymbols[shown], NSImage(systemSymbolName: shown, accessibilityDescription: nil) == nil else { return shown }
+        return fallback
+    }
 
     /// Template image for the toolbar (AppKit). Same box as the SF Symbol at that size.
     static func nsImage(_ name: String, pointSize: CGFloat, weight: NSFont.Weight) -> NSImage? {

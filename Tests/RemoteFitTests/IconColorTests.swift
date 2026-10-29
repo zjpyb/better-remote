@@ -67,9 +67,10 @@ final class IconColorTests: XCTestCase {
         XCTAssertEqual(DesignTokens.NS.toolbarLightBlurAlpha, 0.70)
     }
 
-    /// Every SF Symbol the app can draw must exist on macOS 14. Symbols that are only keys into B art
-    /// (the collapse chevrons) are exempt because they are never drawn as SF Symbols.
-    func testNoSymbolNewerThanMacOS14() throws {
+    /// Every SF Symbol the app can draw must exist on macOS 14, and one newer than macOS 12 needs a legacy fallback
+    /// that macOS 12 has. Symbols that are only keys into B art (the collapse chevrons) are exempt from the first rule
+    /// because they are never drawn as SF Symbols.
+    func testSymbolsExistOnSupportedSystems() throws {
         let plistURL = URL(fileURLWithPath: "/System/Library/PrivateFrameworks/SFSymbols.framework/Versions/A/Resources/CoreGlyphs.bundle/Contents/Resources/name_availability.plist")
         guard let plist = NSDictionary(contentsOf: plistURL) as? [String: Any],
               let symbols = plist["symbols"] as? [String: String],
@@ -85,13 +86,21 @@ final class IconColorTests: XCTestCase {
                 if let range = Range(match.range(at: 1), in: text) { names.insert(String(text[range])) }
             }
         }
+        func macOS(_ name: String) -> Int? {
+            guard let year = symbols[name], let mac = releases[year]?["macOS"] else { return nil }
+            return Int(mac.split(separator: ".").first ?? "0")
+        }
         let bOnly = Set(ToolbarSide.allCases.map(\.collapseSymbol))
         var newer: [String] = []
         for name in names.subtracting(bOnly) {
-            guard let year = symbols[name], let mac = releases[year]?["macOS"] else { continue }
-            if (Int(mac.split(separator: ".").first ?? "0") ?? 0) > 14 { newer.append("\(name) (\(mac))") }
+            if let mac = macOS(name), mac > 14 { newer.append("\(name) (\(mac))") }
         }
         XCTAssertEqual(newer.sorted(), [])
+        let unmapped = names.filter { (macOS($0) ?? 0) > 12 && IconArt.legacySymbols[$0] == nil }
+        XCTAssertEqual(unmapped.sorted(), [])
+        for (name, fallback) in IconArt.legacySymbols {
+            XCTAssertLessThanOrEqual(try XCTUnwrap(macOS(fallback), fallback), 12, "\(name) → \(fallback)")
+        }
     }
 
     // MARK: - Pixels
