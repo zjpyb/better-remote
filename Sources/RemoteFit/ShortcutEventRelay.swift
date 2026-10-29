@@ -1,4 +1,5 @@
 import AppKit
+import RemoteFitCore
 
 /// Posts our own keys after session filters, but before system hotkey dispatch.
 /// The tap handles only private null wakeups; it never reads or filters typing.
@@ -70,7 +71,7 @@ final class ShortcutEventRelay {
         // Fallback only for a wakeup that never arrived. Removing its packet
         // first makes late wakeups harmless and prevents duplicate shortcuts.
         Task { @MainActor [self] in
-            try? await Task.sleep(for: .milliseconds(200))
+            try? await Task.sleep(seconds: 0.2)
             guard packets.contains(where: { $0.id == id }) else { return }
             OperationDiagnostics.write("shortcut-relay-timeout")
             drain(through: id, proxy: nil)

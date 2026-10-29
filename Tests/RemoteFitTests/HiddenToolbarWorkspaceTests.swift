@@ -70,7 +70,7 @@ final class HiddenToolbarWorkspaceTests: XCTestCase {
         switcher.onWillCollapse = { controller.releaseToolbar() }
         switcher.onExpansionChanged = { if !switcher.isExpanded { current = nil; controller.setEnabled(false) } }
         switcher.setEnabled(false)
-        try await Task.sleep(for: .milliseconds(100))
+        try await Task.sleep(seconds: 0.1)
         XCTAssertEqual(filled, [1])
     }
 }

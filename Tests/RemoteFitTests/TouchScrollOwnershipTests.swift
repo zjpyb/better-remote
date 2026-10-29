@@ -1,5 +1,6 @@
 import AppKit
 import XCTest
+import RemoteFitCore
 @testable import RemoteFit
 
 private final class MouseEventLog: @unchecked Sendable {
@@ -30,7 +31,7 @@ final class TouchScrollOwnershipTests: XCTestCase {
         let motion = event(.mouseMoved, remote: false, point: CGPoint(x: 400, y: 300))
         XCTAssertFalse(EventTapThread.shared.sync { tested.handle(.mouseMoved, motion) })
         XCTAssertEqual(motion.location, CGPoint(x: 400, y: 300))
-        try await Task.sleep(for: .milliseconds(500))
+        try await Task.sleep(seconds: 0.5)
         XCTAssertTrue(log.events.isEmpty)
     }
     func testLocalTakeoverReleasesInjectedHoldAtIncomingPointer() async throws {
@@ -58,8 +59,8 @@ final class TouchScrollOwnershipTests: XCTestCase {
         XCTAssertEqual(log.events.map { $0.0 }, [.leftMouseDown, .leftMouseUp])
     }
     private func waitForPress(_ log: MouseEventLog) async throws {
-        let deadline = ContinuousClock.now + .seconds(2)
-        while log.events.isEmpty, ContinuousClock.now < deadline { try await Task.sleep(for: .milliseconds(10)) }
+        let deadline = ProcessInfo.processInfo.systemUptime + 2
+        while log.events.isEmpty, ProcessInfo.processInfo.systemUptime < deadline { try await Task.sleep(seconds: 0.01) }
         XCTAssertEqual(log.events.first?.0, .leftMouseDown)
     }
 }

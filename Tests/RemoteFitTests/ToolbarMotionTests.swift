@@ -18,10 +18,10 @@ final class ToolbarMotionTests: XCTestCase {
         return (switcher, panel)
     }
     private func until(_ condition: () -> Bool) async throws {
-        let deadline = ContinuousClock.now + .seconds(2)
+        let deadline = ProcessInfo.processInfo.systemUptime + 2
         while !condition() {
-            if ContinuousClock.now >= deadline { XCTFail("Toolbar transition did not settle"); return }
-            try await Task.sleep(for: .milliseconds(10))
+            if ProcessInfo.processInfo.systemUptime >= deadline { XCTFail("Toolbar transition did not settle"); return }
+            try await Task.sleep(seconds: 0.01)
         }
     }
     private func capture(_ window: NSWindow, name: String) throws {

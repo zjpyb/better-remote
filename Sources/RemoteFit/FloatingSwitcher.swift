@@ -1022,7 +1022,7 @@ final class FloatingSwitcher: NSObject {
                 panel.setFrame(CGRect(x: interpolate(start.minX, target.minX), y: interpolate(start.minY, target.minY),
                                      width: interpolate(start.width, target.width), height: interpolate(start.height, target.height)), display: true)
                 if progress >= 1 { break }
-                try? await Task.sleep(for: .milliseconds(16))
+                try? await Task.sleep(seconds: 0.016)
             }
             guard !Task.isCancelled else { return }
             panel.setFrame(target, display: true)

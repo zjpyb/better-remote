@@ -97,7 +97,7 @@ actor WindowAXWorker {
         AXUIElementSetMessagingTimeout(window, 0.5)
         if (value("AXFullScreen", of: window) as? Bool) == true {
             AXUIElementSetAttributeValue(window, "AXFullScreen" as CFString, kCFBooleanFalse)
-            try await Task.sleep(for: .milliseconds(900))
+            try await Task.sleep(seconds: 0.9)
         }
         guard let current = frame(of: window) else { throw FitError.message("当前窗口不能调整位置") }
         guard settable(kAXPositionAttribute, of: window), settable(kAXSizeAttribute, of: window) else {

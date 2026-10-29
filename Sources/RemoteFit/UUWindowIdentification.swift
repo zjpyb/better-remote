@@ -44,7 +44,7 @@ enum UUWindowIdentification {
         var axRetries = 0
         while state.permitted, !state.axAvailable, axRetries < 2 {
             axRetries += 1
-            do { try await Task.sleep(for: .milliseconds(250)) }
+            do { try await Task.sleep(seconds: 0.25) }
             catch { break }
             guard !Task.isCancelled, await access.connected() else { return .init(status: "disconnected") }
             state = await access.inspect()
@@ -61,7 +61,7 @@ enum UUWindowIdentification {
         while !Task.isCancelled, Date() < deadline {
             guard await access.connected() else { reason = "disconnected"; break }
             if !state.axAvailable {
-                do { try await Task.sleep(for: .milliseconds(250)) }
+                do { try await Task.sleep(seconds: 0.25) }
                 catch { break }
                 state = await access.inspect()
                 if !state.permitted { reason = "permission_missing"; break }
@@ -72,7 +72,7 @@ enum UUWindowIdentification {
                 else { reason = "multiple_controllers" }
                 break
             }
-            do { try await Task.sleep(for: .milliseconds(250)) }
+            do { try await Task.sleep(seconds: 0.25) }
             catch { break }
             state = await access.inspect()
             if !state.permitted { reason = "permission_missing"; break }
@@ -178,7 +178,7 @@ private actor UUAXWindowAccess: UUWindowAccess {
         for _ in 0..<8 {
             if mainWindows.allSatisfy({ (attribute($0, kAXMinimizedAttribute) as? Bool) == true }) { return true }
             // Cleanup must finish even when the connection task was cancelled.
-            await Task.detached { try? await Task.sleep(for: .milliseconds(100)) }.value
+            await Task.detached { try? await Task.sleep(seconds: 0.1) }.value
         }
         return false
     }

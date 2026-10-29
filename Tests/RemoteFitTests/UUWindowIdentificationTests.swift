@@ -58,7 +58,7 @@ final class UUWindowIdentificationTests: XCTestCase {
         let task = Task { await UUWindowIdentification.run(access: access) }
         for _ in 0..<100 {
             if await access.recorded().contains("open") { break }
-            try? await Task.sleep(for: .milliseconds(10))
+            try? await Task.sleep(seconds: 0.01)
         }
         task.cancel()
         let result = await task.value

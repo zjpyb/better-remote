@@ -26,7 +26,7 @@ final class WindowSnapIntegrationTests: XCTestCase {
                                        width: 400, height: 300), display: true)
                 window.makeKeyAndOrderFront(nil)
                 window.makeMain()
-                try await Task.sleep(for: .milliseconds(40))
+                try await Task.sleep(seconds: 0.04)
                 do { try await WindowControlPerformer.snapOwn(.fill, window: window) }
                 catch { XCTFail(error.localizedDescription); return }
                 XCTAssertEqual(selectedScreen, screen)

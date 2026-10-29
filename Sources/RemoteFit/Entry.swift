@@ -41,7 +41,7 @@ struct Entry {
                 relay.post([marker])
                 relay.finishWhenIdle()
                 await relay.waitUntilDelivered()
-                for _ in 0..<100 where relay.isPrepared { try? await Task.sleep(for: .milliseconds(10)) }
+                for _ in 0..<100 where relay.isPrepared { try? await Task.sleep(seconds: 0.01) }
                 print(relay.isPrepared ? "input-relay: cleanup failed" : "input-relay: delivery and cleanup OK")
                 exit(relay.isPrepared ? 1 : 0)
             }

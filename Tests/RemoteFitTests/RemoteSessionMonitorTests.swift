@@ -11,11 +11,11 @@ final class RemoteSessionMonitorTests: XCTestCase {
             samples += 1
             return samples == 1 ? 0.05 : nil
         }
-        try await Task.sleep(for: .milliseconds(1300))
+        try await Task.sleep(seconds: 1.3)
         XCTAssertGreaterThanOrEqual(samples, 2)
         monitor.stop()
         let stopped = samples
-        try await Task.sleep(for: .milliseconds(1200))
+        try await Task.sleep(seconds: 1.2)
         XCTAssertEqual(samples, stopped)
     }
 
@@ -24,12 +24,12 @@ final class RemoteSessionMonitorTests: XCTestCase {
         var samples = 0
         monitor.start {
             samples += 1
-            try? await Task.sleep(for: .milliseconds(200))
+            try? await Task.sleep(seconds: 0.2)
             return 0.05
         }
-        try await Task.sleep(for: .milliseconds(50))
+        try await Task.sleep(seconds: 0.05)
         monitor.stop()
-        try await Task.sleep(for: .milliseconds(1300))
+        try await Task.sleep(seconds: 1.3)
         XCTAssertEqual(samples, 1)
     }
 

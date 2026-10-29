@@ -7,7 +7,7 @@ import RemoteFitCore
 /// coalesced into one check `debounce` after the last event.
 @MainActor
 final class AutoFillController {
-    static let debounce: Duration = .milliseconds(350)
+    static let debounce: TimeInterval = 0.35
     /// Fills the given app's front window if the policy allows it.
     var perform: (pid_t) async -> Void = { _ in }
     /// False while a resolution switch or termination is in progress.
@@ -76,7 +76,7 @@ final class AutoFillController {
         guard enabled else { return }
         pending?.cancel()
         pending = Task { @MainActor [weak self] in
-            try? await Task.sleep(for: Self.debounce)
+            try? await Task.sleep(seconds: Self.debounce)
             guard let self, !Task.isCancelled, enabled else { return }
             // Never fight a drag or resize in progress; look again once the mouse is up (bounded).
             if NSEvent.pressedMouseButtons != 0 || !canFill() {

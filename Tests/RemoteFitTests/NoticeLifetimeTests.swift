@@ -5,10 +5,10 @@ import XCTest
 final class NoticeLifetimeTests: XCTestCase {
     @MainActor
     private final class ManualSleeper {
-        var durations: [Duration] = []
+        var durations: [TimeInterval] = []
         var waits: [CheckedContinuation<Void, Never>] = []
 
-        func sleep(_ duration: Duration) async {
+        func sleep(_ duration: TimeInterval) async {
             durations.append(duration)
             await withCheckedContinuation { waits.append($0) }
         }
@@ -20,7 +20,7 @@ final class NoticeLifetimeTests: XCTestCase {
         var expired = false
         lifetime.restart { expired = true }
         try await wait { sleeper.waits.count == 1 }
-        XCTAssertEqual(sleeper.durations, [.seconds(3)])
+        XCTAssertEqual(sleeper.durations, [3])
         XCTAssertFalse(expired)
         sleeper.waits[0].resume()
         try await wait { expired }
@@ -40,7 +40,7 @@ final class NoticeLifetimeTests: XCTestCase {
         sleeper.waits[1].resume()
         try await wait { newExpired }
         XCTAssertFalse(oldExpired)
-        XCTAssertEqual(sleeper.durations, [.seconds(3), .seconds(3)])
+        XCTAssertEqual(sleeper.durations, [3, 3])
     }
 
     func testDismissCancelsPendingExpiryEvenIfSleepReturnsNormally() async throws {
@@ -61,9 +61,9 @@ final class NoticeLifetimeTests: XCTestCase {
     }
 
     private func wait(_ condition: () -> Bool) async throws {
-        let deadline = ContinuousClock.now + .seconds(2)
+        let deadline = ProcessInfo.processInfo.systemUptime + 2
         while !condition() {
-            guard ContinuousClock.now < deadline else {
+            guard ProcessInfo.processInfo.systemUptime < deadline else {
                 XCTFail("Notice lifecycle did not reach the expected state")
                 throw CancellationError()
             }

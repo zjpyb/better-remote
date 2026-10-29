@@ -28,11 +28,11 @@ final class WorkspaceLayoutControllerTests: XCTestCase {
         let region = region
         controller.region = { region }
         controller.setEnabled(true)
-        try await Task.sleep(for: .milliseconds(650))
+        try await Task.sleep(seconds: 0.65)
         XCTAssertEqual(moved, [1])
         XCTAssertEqual(list.first { $0.id == 2 }?.frame, far.frame)
         list.append(.init(pid: 789, id: 3, frame: overlapping.frame))
-        try await Task.sleep(for: .milliseconds(400))
+        try await Task.sleep(seconds: 0.4)
         XCTAssertEqual(moved, [1, 3])
         XCTAssertEqual(list.first { $0.id == 2 }?.frame, far.frame)
     }
@@ -51,17 +51,17 @@ final class WorkspaceLayoutControllerTests: XCTestCase {
         let region = region
         controller.region = { region }
         controller.setEnabled(true)
-        try await Task.sleep(for: .milliseconds(400))
+        try await Task.sleep(seconds: 0.4)
         XCTAssertEqual(moves, 0)
         interacting = false
-        try await Task.sleep(for: .milliseconds(400))
+        try await Task.sleep(seconds: 0.4)
         XCTAssertEqual(moves, 1)
         interacting = true
         window = overlapping
-        try await Task.sleep(for: .milliseconds(400))
+        try await Task.sleep(seconds: 0.4)
         XCTAssertEqual(moves, 1)
         interacting = false
-        try await Task.sleep(for: .milliseconds(400))
+        try await Task.sleep(seconds: 0.4)
         XCTAssertEqual(moves, 2)
     }
 
@@ -75,10 +75,10 @@ final class WorkspaceLayoutControllerTests: XCTestCase {
         let region = region
         controller.region = { region }
         controller.setEnabled(true)
-        try await Task.sleep(for: .milliseconds(650))
+        try await Task.sleep(seconds: 0.65)
         XCTAssertEqual(moves, 1)
         front = 456
-        try await Task.sleep(for: .milliseconds(650))
+        try await Task.sleep(seconds: 0.65)
         XCTAssertEqual(moves, 2)
     }
 
@@ -91,7 +91,7 @@ final class WorkspaceLayoutControllerTests: XCTestCase {
         controller.region = { region }
         controller.setEnabled(true)
         controller.setEnabled(false)
-        try await Task.sleep(for: .milliseconds(650))
+        try await Task.sleep(seconds: 0.65)
         XCTAssertEqual(moves, 0)
     }
 
@@ -108,7 +108,7 @@ final class WorkspaceLayoutControllerTests: XCTestCase {
         controller.releaseToolbar()
         // onExpansionChanged renders after onWillCollapse; this must not cancel fill.
         controller.setEnabled(false)
-        try await Task.sleep(for: .milliseconds(100))
+        try await Task.sleep(seconds: 0.1)
         XCTAssertEqual(filled, [1])
     }
 
@@ -123,7 +123,7 @@ final class WorkspaceLayoutControllerTests: XCTestCase {
         controller.setEnabled(true)
         controller.releaseToolbar()
         controller.setEnabled(true)
-        try await Task.sleep(for: .milliseconds(100))
+        try await Task.sleep(seconds: 0.1)
         XCTAssertEqual(fills, 0)
     }
 }

@@ -116,7 +116,7 @@ final class ShortcutSender {
                 guard !Task.isCancelled, tapEpoch == epoch else { return }
                 // Give the receiver a real press interval instead of placing
                 // down, up and modifier reset in the same run-loop turn.
-                try await Task.sleep(for: .milliseconds(35))
+                try await Task.sleep(seconds: 0.035)
                 guard !Task.isCancelled, tapEpoch == epoch else { return }
                 release(shortcut)
                 await relay.waitUntilDelivered()
@@ -124,7 +124,7 @@ final class ShortcutSender {
                     // Text receivers hide the cursor on Return. UU direct touch
                     // can then retain the old pointer position. A stationary
                     // mouse move restores normal pointer visibility after input.
-                    try await Task.sleep(for: .milliseconds(50))
+                    try await Task.sleep(seconds: 0.05)
                     guard !Task.isCancelled, tapEpoch == epoch else { return }
                     if let cursorRecovery { cursorRecovery(target) }
                     else if eventSink == nil { Self.restoreCursorAfterReturn(target: target) }
@@ -147,12 +147,12 @@ final class ShortcutSender {
         if NSWorkspace.shared.frontmostApplication?.processIdentifier == pid { return }
         NSApp.yieldActivation(to: app)
         _ = app.activate()
-        let deadline = ContinuousClock.now + .milliseconds(300)
+        let deadline = ProcessInfo.processInfo.systemUptime + 0.3
         repeat {
             try Task.checkCancellation()
             if NSWorkspace.shared.frontmostApplication?.processIdentifier == pid { return }
-            try await Task.sleep(for: .milliseconds(10))
-        } while ContinuousClock.now < deadline
+            try await Task.sleep(seconds: 0.01)
+        } while ProcessInfo.processInfo.systemUptime < deadline
         throw FitError.message("目标应用未完成切换")
     }
 

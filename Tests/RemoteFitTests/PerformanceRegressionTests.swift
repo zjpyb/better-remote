@@ -72,26 +72,26 @@ final class PerformanceRegressionTests: XCTestCase {
                   toolbar: CGRect(x: 900, y: 0, width: 100, height: 800), side: .right)
         }
         controller.setEnabled(true)
-        let deadline = ContinuousClock.now + .seconds(2)
-        while release == nil, ContinuousClock.now < deadline { try await Task.sleep(for: .milliseconds(10)) }
+        let deadline = ProcessInfo.processInfo.systemUptime + 2
+        while release == nil, ProcessInfo.processInfo.systemUptime < deadline { try await Task.sleep(seconds: 0.01) }
         let continuation = try XCTUnwrap(release)
         controller.cancel()
         continuation.resume(returning: [.init(pid: 12, id: 34, frame: CGRect(x: 700, y: 0, width: 300, height: 400))])
-        try await Task.sleep(for: .milliseconds(50))
+        try await Task.sleep(seconds: 0.05)
         XCTAssertEqual(moves, 0)
     }
 
     func testFramePollingStaysOnWorkerActorAndCancellationStopsReads() async throws {
         let worker = FramePollingWorker()
         let pending = Task { try await worker.wait() }
-        try await Task.sleep(for: .milliseconds(80))
+        try await Task.sleep(seconds: 0.08)
         // The UI actor can run while the worker polls, then cancel before another write.
         pending.cancel()
         do { _ = try await pending.value; XCTFail("Expected cancellation") }
         catch is CancellationError {} catch { XCTFail("Unexpected error: \(error)") }
         let reads = await worker.reads
         XCTAssertGreaterThan(reads, 0)
-        try await Task.sleep(for: .milliseconds(80))
+        try await Task.sleep(seconds: 0.08)
         let after = await worker.reads
         XCTAssertEqual(after, reads)
     }

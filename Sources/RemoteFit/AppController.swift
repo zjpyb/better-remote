@@ -131,7 +131,7 @@ final class AppController: NSObject, NSApplicationDelegate, NSMenuDelegate {
             for offset in [0.0, 1.0, 5.0, 15.0] {
                 let remaining = started + offset - ProcessInfo.processInfo.systemUptime
                 if remaining > 0 {
-                    do { try await Task.sleep(for: .seconds(remaining)) } catch { return }
+                    do { try await Task.sleep(seconds: remaining) } catch { return }
                 }
                 guard let self, !Task.isCancelled, !terminating, status.applied == expected else { return }
                 let connection = "connected=\(remoteStability.isConnected) deviceIdentified=\(remoteDeviceID != nil) configurationEnabled=\(activeConfigurationEnabled)"
@@ -1512,7 +1512,7 @@ final class AppController: NSObject, NSApplicationDelegate, NSMenuDelegate {
             // the old area so none sits under an always-shown Dock (or stays short after it auto-hides).
             var areas = WindowControlPerformer.dockAreas(from: before)
             for _ in 0..<20 where !areas.contains(where: DockRefit.changed) {
-                try? await Task.sleep(for: .milliseconds(50))
+                try? await Task.sleep(seconds: 0.05)
                 guard !terminating else { return }
                 areas = WindowControlPerformer.dockAreas(from: before)
             }

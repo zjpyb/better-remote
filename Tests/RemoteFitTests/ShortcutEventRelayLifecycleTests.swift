@@ -1,5 +1,6 @@
 import AppKit
 import XCTest
+import RemoteFitCore
 @testable import RemoteFit
 
 @MainActor
@@ -24,7 +25,7 @@ final class ShortcutEventRelayLifecycleTests: XCTestCase {
         relay.post([marker])
         relay.finishWhenIdle()
         await relay.waitUntilDelivered()
-        for _ in 0..<100 where relay.isPrepared { try await Task.sleep(for: .milliseconds(10)) }
+        for _ in 0..<100 where relay.isPrepared { try await Task.sleep(seconds: 0.01) }
         XCTAssertFalse(relay.isPrepared)
     }
 }

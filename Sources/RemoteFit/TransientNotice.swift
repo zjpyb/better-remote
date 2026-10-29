@@ -1,16 +1,17 @@
 import AppKit
 import SwiftUI
+import RemoteFitCore
 
 /// Restarting the lifetime invalidates earlier deadlines, including sleepers that
 /// finish after cancellation. No modal run loop or application activation is used.
 @MainActor
 final class NoticeLifetime {
-    static let duration: Duration = .seconds(3)
-    private let sleep: @MainActor (Duration) async throws -> Void
+    static let duration: TimeInterval = 3
+    private let sleep: @MainActor (TimeInterval) async throws -> Void
     private var task: Task<Void, Never>?
     private var generation = 0
 
-    init(sleep: @escaping @MainActor (Duration) async throws -> Void = { try await Task.sleep(for: $0) }) {
+    init(sleep: @escaping @MainActor (TimeInterval) async throws -> Void = { try await Task.sleep(seconds: $0) }) {
         self.sleep = sleep
     }
 

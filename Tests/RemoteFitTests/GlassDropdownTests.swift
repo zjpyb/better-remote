@@ -1,5 +1,6 @@
 import AppKit
 import XCTest
+import RemoteFitCore
 @testable import RemoteFit
 
 @MainActor
@@ -22,7 +23,7 @@ final class GlassDropdownTests: XCTestCase {
         XCTAssertFalse(menu.canBecomeKey, "The menu must not dismiss itself by taking focus from its parent")
         menu.makeKey()
         XCTAssertTrue(controller.state.isOpen)
-        try await Task.sleep(for: .milliseconds(100))
+        try await Task.sleep(seconds: 0.1)
         menu.contentView?.layoutSubtreeIfNeeded()
         for type in [NSEvent.EventType.leftMouseDown, .leftMouseUp] {
             let click = try XCTUnwrap(NSEvent.mouseEvent(with: type,
@@ -32,7 +33,7 @@ final class GlassDropdownTests: XCTestCase {
                                                        eventNumber: 1, clickCount: 1, pressure: type == .leftMouseDown ? 1 : 0))
             NSApp.sendEvent(click)
         }
-        try await Task.sleep(for: .milliseconds(100))
+        try await Task.sleep(seconds: 0.1)
         XCTAssertEqual(selected, "phone", "Clicking a row must reach the settings callback")
         XCTAssertFalse(controller.state.isOpen)
 

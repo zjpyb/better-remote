@@ -28,7 +28,7 @@ final class ShortcutSenderTests: XCTestCase {
         sender.enqueueTap(.init(name: "Return", key: .init(code: 36, modifiers: 0, label: "Return")), targetPID: 111)
         try await wait { events.count == 2 }
         sender.releaseAll()
-        try await Task.sleep(for: .milliseconds(80))
+        try await Task.sleep(seconds: 0.08)
         XCTAssertEqual(events.map(\.down), [true, false])
     }
 
@@ -52,15 +52,15 @@ final class ShortcutSenderTests: XCTestCase {
     func testQueuedClicksWaitForFocusAndKeepTheirPressInterval() async throws {
         var unblock: CheckedContinuation<Void, Never>?
         var events: [ShortcutStroke] = []
-        var pressedAt: ContinuousClock.Instant?
-        var intervals: [Duration] = []
+        var pressedAt: TimeInterval?
+        var intervals: [TimeInterval] = []
         let sender = ShortcutSender(permissionCheck: { true }, activationRequest: { _ in
             await withCheckedContinuation { unblock = $0 }
         }, eventSink: { strokes, tap in
             XCTAssertEqual(tap, .cgSessionEventTap)
             for stroke in strokes where !stroke.modifier {
-                if stroke.down { pressedAt = .now }
-                else if let pressedAt { intervals.append(pressedAt.duration(to: .now)) }
+                if stroke.down { pressedAt = ProcessInfo.processInfo.systemUptime }
+                else if let pressedAt { intervals.append(ProcessInfo.processInfo.systemUptime - pressedAt) }
             }
             events += strokes
         })
@@ -71,7 +71,7 @@ final class ShortcutSenderTests: XCTestCase {
         unblock?.resume(); unblock = nil
         try await wait { events.contains { !$0.modifier && !$0.down } }
         XCTAssertEqual(intervals.count, 1)
-        XCTAssertTrue(intervals.allSatisfy { $0 >= .milliseconds(30) })
+        XCTAssertTrue(intervals.allSatisfy { $0 >= 0.03 })
         XCTAssertEqual(events.last?.flags, 0)
         sender.releaseAll()
     }
@@ -108,7 +108,7 @@ final class ShortcutSenderTests: XCTestCase {
         try await wait { unblock != nil }
         sender.releaseAll()
         unblock?.resume()
-        try await Task.sleep(for: .milliseconds(50))
+        try await Task.sleep(seconds: 0.05)
         XCTAssertFalse(posted)
     }
 
@@ -119,7 +119,7 @@ final class ShortcutSenderTests: XCTestCase {
         sender.enqueueTap(copy)
         try await wait { events.contains { !$0.modifier && $0.down } }
         sender.releaseAll()
-        try await Task.sleep(for: .milliseconds(60))
+        try await Task.sleep(seconds: 0.06)
         XCTAssertEqual(events.filter { !$0.modifier && !$0.down }.count, 1)
         XCTAssertEqual(events.last?.flags, 0)
         XCTAssertNil(sender.heldID)
@@ -143,8 +143,8 @@ final class ShortcutSenderTests: XCTestCase {
     }
 
     private func wait(until condition: () -> Bool) async throws {
-        let deadline = ContinuousClock.now + .seconds(2)
-        while !condition(), ContinuousClock.now < deadline { try await Task.sleep(for: .milliseconds(1)) }
+        let deadline = ProcessInfo.processInfo.systemUptime + 2
+        while !condition(), ProcessInfo.processInfo.systemUptime < deadline { try await Task.sleep(seconds: 0.001) }
         XCTAssertTrue(condition(), "Shortcut delivery did not complete")
     }
 }

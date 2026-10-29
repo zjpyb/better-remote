@@ -411,7 +411,7 @@ actor WindowControllerWorker {
                 let result = AXUIElementSetAttributeValue(window, attribute as CFString, value)
                 log("write attempt=\(attempt) attribute=\(attribute) result=\(result.rawValue)")
                 if result != .success { throw FitError.message("目标窗口不支持调整位置或尺寸") }
-                try await Task.sleep(for: .milliseconds(80))
+                try await Task.sleep(seconds: 0.08)
             }
             do {
                 _ = try await WindowLayout.waitForFrame(target: target, allowsSizeRounding: allowsSizeRounding) {

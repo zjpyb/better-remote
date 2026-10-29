@@ -12,7 +12,7 @@ final class WindowPickerInputTests: XCTestCase {
                               styleMask: [.titled], backing: .buffered, defer: false)
         window.isReleasedWhenClosed = false
         window.orderFrontRegardless()
-        try await Task.sleep(for: .milliseconds(150))
+        try await Task.sleep(seconds: 0.15)
         defer { window.close() }
         let picker = WindowPicker(permissionCheck: { true })
         defer { picker.end() }

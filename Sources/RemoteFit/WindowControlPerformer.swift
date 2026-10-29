@@ -195,7 +195,7 @@ enum WindowControlPerformer {
     static func snapOwn(_ snap: WindowSnap, window: NSWindow) async throws {
         if window.styleMask.contains(.fullScreen) {
             window.toggleFullScreen(nil)
-            try await Task.sleep(for: .milliseconds(900))
+            try await Task.sleep(seconds: 0.9)
         }
         let current = axFrame(of: window)
         guard let area = visibleArea(for: current) else { throw FitError.message("当前窗口不能调整位置") }

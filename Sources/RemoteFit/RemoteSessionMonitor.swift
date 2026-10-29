@@ -1,5 +1,6 @@
 import AppKit
 import NativeDisplay
+import RemoteFitCore
 
 /// Events wake the detector. A slow safety check covers lost notifications and
 /// clients whose session helper starts after their power assertion is created.
@@ -64,7 +65,7 @@ final class RemoteSessionMonitor {
         let version = generation
         let delay = max(0, lastSample + 1 - ProcessInfo.processInfo.systemUptime)
         pending = Task { [weak self] in
-            do { if delay > 0 { try await Task.sleep(for: .seconds(delay)) } }
+            do { if delay > 0 { try await Task.sleep(seconds: delay) } }
             catch { return }
             guard let self, version == generation, let sample else { return }
             lastSample = ProcessInfo.processInfo.systemUptime

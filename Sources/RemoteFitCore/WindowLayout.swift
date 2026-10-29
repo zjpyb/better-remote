@@ -81,13 +81,13 @@ public enum WindowLayout {
 
     public static func waitForFrame(target: CGRect, allowsSizeRounding: Bool = false,
                                     isolation: isolated (any Actor)? = #isolation, read: () throws -> CGRect) async throws -> CGRect {
-        let deadline = ContinuousClock.now + .milliseconds(700)
+        let deadline = ProcessInfo.processInfo.systemUptime + 0.7
         repeat {
             try Task.checkCancellation()
             let actual = try read()
             if reached(actual, target: target, allowsSizeRounding: allowsSizeRounding) { return actual }
-            if ContinuousClock.now >= deadline { break }
-            try await Task.sleep(for: .milliseconds(50))
+            if ProcessInfo.processInfo.systemUptime >= deadline { break }
+            try await Task.sleep(seconds: 0.05)
         } while true
         throw FitError.message("窗口未完成调整，请重试")
     }
@@ -95,7 +95,7 @@ public enum WindowLayout {
     /// Native zoom owns the final geometry and restore history. Observe a stable
     /// change instead of forcing it to match our calculated desktop rectangle.
     public static func waitForNativeZoom(from original: CGRect, isolation: isolated (any Actor)? = #isolation, read: () throws -> CGRect) async throws -> CGRect {
-        let deadline = ContinuousClock.now + .seconds(2)
+        let deadline = ProcessInfo.processInfo.systemUptime + 2
         var candidate: CGRect?
         var stableReads = 0
         repeat {
@@ -109,8 +109,8 @@ public enum WindowLayout {
                 candidate = nil
                 stableReads = 0
             }
-            if ContinuousClock.now >= deadline { break }
-            try await Task.sleep(for: .milliseconds(50))
+            if ProcessInfo.processInfo.systemUptime >= deadline { break }
+            try await Task.sleep(seconds: 0.05)
         } while true
         throw FitError.message("窗口未响应缩放操作")
     }
