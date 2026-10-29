@@ -111,6 +111,7 @@ final class IconColorTests: XCTestCase {
     }
 
     private func render<V: View>(_ view: V) throws -> [(r: CGFloat, g: CGFloat, b: CGFloat)] {
+        guard #available(macOS 13, *) else { throw XCTSkip("ImageRenderer needs macOS 13") }
         let renderer = ImageRenderer(content: view.padding(2))
         renderer.scale = 2
         return try colours(XCTUnwrap(renderer.nsImage))

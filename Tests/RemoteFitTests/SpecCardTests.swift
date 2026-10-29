@@ -18,6 +18,7 @@ final class SpecCardTests: XCTestCase {
 
     /// One shape and one name line, centred: equal space above and below, no second text line.
     func testContentIsCentredWithNoSizeLine() throws {
+        guard #available(macOS 13, *) else { throw XCTSkip("ImageRenderer needs macOS 13") }
         let width: CGFloat = 150
         let renderer = ImageRenderer(content: SpecCard(preset: Self.landscape, selected: false)
             .frame(width: width).environment(\.colorScheme, .light))
