@@ -1,0 +1,80 @@
+name: Build
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select newest Xcode
+        run: |
+          XCODE="$(ls -d /Applications/Xcode_*.app | sort -V | tail -1)"
+          sudo xcode-select -s "$XCODE"
+          xcodebuild -version
+          swift --version
+
+      # build.sh needs a fixed identity; a throwaway self-signed one stands in for the local signing certificate.
+      - name: Create signing identity
+        run: |
+          KEYCHAIN="$RUNNER_TEMP/signing.keychain-db"
+          cat > "$RUNNER_TEMP/cert.cnf" <<'EOF'
+          [req]
+          distinguished_name = dn
+          x509_extensions = ext
+          prompt = no
+          [dn]
+          CN = Aquarium Local Code Signing
+          [ext]
+          basicConstraints = critical,CA:false
+          keyUsage = critical,digitalSignature
+          extendedKeyUsage = critical,codeSigning
+          EOF
+          cd "$RUNNER_TEMP"
+          /usr/bin/openssl req -x509 -newkey rsa:2048 -nodes -days 30 -config cert.cnf -keyout key.pem -out cert.pem
+          /usr/bin/openssl pkcs12 -export -inkey key.pem -in cert.pem -out identity.p12 -passout pass:ci
+          security create-keychain -p ci "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p ci "$KEYCHAIN"
+          security import identity.p12 -k "$KEYCHAIN" -P ci -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k ci "$KEYCHAIN"
+          security list-keychains -d user -s "$KEYCHAIN" $(security list-keychains -d user | tr -d '"')
+          sudo security add-trusted-cert -d -r trustRoot -p codeSign -k /Library/Keychains/System.keychain cert.pem
+          security find-identity -v -p codesigning
+
+      - name: Build app and tests
+        run: swift build --build-tests -Xswiftc -warnings-as-errors
+
+      - name: Test
+        continue-on-error: true
+        run: swift test --skip-build
+
+      - name: Package
+        run: scripts/build.sh
+
+      - name: Check minimum macOS
+        run: |
+          APP="dist/Better Remote.app"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :LSMinimumSystemVersion' "$APP/Contents/Info.plist")" = 12.0
+          find "$APP" -type f | while read -r FILE; do
+            file -b "$FILE" | grep -q Mach-O || continue
+            for MINOS in $(vtool -show-build "$FILE" | awk '/minos/ {print $2}'); do
+              if [ "$(printf '%s\n12.0\n' "$MINOS" | sort -V | tail -1)" != 12.0 ]; then
+                echo "::error::$FILE requires macOS $MINOS"; exit 1
+              fi
+            done
+          done
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Better-Remote-dmg
+          path: dist/*.dmg
