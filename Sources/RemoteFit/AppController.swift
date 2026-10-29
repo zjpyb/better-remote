@@ -252,7 +252,8 @@ final class AppController: NSObject, NSApplicationDelegate, NSMenuDelegate {
            event.eventID == kAEOpenApplication,
            event.paramDescriptor(forKeyword: keyAEPropData)?.enumCodeValue == keyAELaunchedAsLogInItem { return true }
         // SMAppService login items are started by launchd without that flag; treat a launch
-        // shortly after boot while registered as a login launch.
+        // shortly after boot while registered as a login launch. The macOS 12 helper passes the argument instead.
+        guard #available(macOS 13, *) else { return false }
         return LoginItem.isEnabled && ProcessInfo.processInfo.systemUptime < 300
     }
     private func checkEnvironment() {
