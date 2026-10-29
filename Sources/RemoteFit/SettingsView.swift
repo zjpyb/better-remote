@@ -1,6 +1,5 @@
 import SwiftUI
 import RemoteFitCore
-import ServiceManagement
 import UniformTypeIdentifiers
 
 enum SettingsPage {
@@ -525,24 +524,7 @@ struct SettingsView: View {
 
                             Spacer()
 
-                            Toggle("开机启动", isOn: Binding(
-                                get: { SMAppService.mainApp.status == .enabled },
-                                set: { enable in
-                                    do {
-                                        if enable {
-                                            if SMAppService.mainApp.status != .enabled {
-                                                try SMAppService.mainApp.register()
-                                            }
-                                        } else {
-                                            if SMAppService.mainApp.status == .enabled {
-                                                try SMAppService.mainApp.unregister()
-                                            }
-                                        }
-                                    } catch {
-                                        // Ignored
-                                    }
-                                }
-                            ))
+                            Toggle("开机启动", isOn: Binding(get: { LoginItem.isEnabled }, set: { LoginItem.setEnabled($0) }))
                             .toggleStyle(StableBlueSwitchStyle())
                             .labelsHidden()
                         }

@@ -68,6 +68,25 @@ cat > "$APP/Contents/Info.plist" <<'PLIST'
 PLIST
 SU_PUBLIC_ED_KEY="$(tr -d '[:space:]' < "$PWD/scripts/sparkle_public_ed_key.txt")"
 /usr/libexec/PlistBuddy -c "Set :SUPublicEDKey $SU_PUBLIC_ED_KEY" "$APP/Contents/Info.plist"
+# macOS 12 launch-at-login helper (SMLoginItemSetEnabled); macOS 13+ registers the app itself via SMAppService.
+HELPER="$APP/Contents/Library/LoginItems/RemoteFitLoginItem.app"
+mkdir -p "$HELPER/Contents/MacOS"
+cp "$BIN_DIR/RemoteFitLoginItem" "$HELPER/Contents/MacOS/RemoteFitLoginItem"
+cat > "$HELPER/Contents/Info.plist" <<'PLIST'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>CFBundleIdentifier</key><string>local.RemoteFit.LoginItem</string>
+<key>CFBundleName</key><string>Better Remote Login Item</string>
+<key>CFBundleExecutable</key><string>RemoteFitLoginItem</string>
+<key>CFBundlePackageType</key><string>APPL</string>
+<key>LSMinimumSystemVersion</key><string>12.0</string>
+<key>LSBackgroundOnly</key><true/>
+</dict></plist>
+PLIST
+for KEY in CFBundleShortVersionString CFBundleVersion; do
+    /usr/libexec/PlistBuddy -c "Add :$KEY string $(/usr/libexec/PlistBuddy -c "Print :$KEY" "$APP/Contents/Info.plist")" "$HELPER/Contents/Info.plist"
+done
 # Embed Sparkle.framework and make sure the executable can find it.
 SPARKLE_FRAMEWORK="$BIN_DIR/Sparkle.framework"
 if [ ! -d "$SPARKLE_FRAMEWORK" ]; then
@@ -120,6 +139,7 @@ for NESTED in "$SPK/XPCServices/Installer.xpc" "$SPK/XPCServices/Downloader.xpc"
         fi
     fi
 done
+sign "$HELPER"
 sign "$APP/Contents/Frameworks/Sparkle.framework"
 sign --entitlements "$PWD/scripts/BetterRemote.entitlements" "$APP"
 codesign --verify --deep --strict "$APP"

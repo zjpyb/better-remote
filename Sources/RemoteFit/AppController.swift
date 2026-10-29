@@ -1,4 +1,3 @@
-import ServiceManagement
 import AppKit
 import SwiftUI
 import Foundation
@@ -248,12 +247,13 @@ final class AppController: NSObject, NSApplicationDelegate, NSMenuDelegate {
         }
     }
     private static var launchedAsLoginItem: Bool {
+        if CommandLine.arguments.contains(LoginItem.launchArgument) { return true }
         if let event = NSAppleEventManager.shared().currentAppleEvent,
            event.eventID == kAEOpenApplication,
            event.paramDescriptor(forKeyword: keyAEPropData)?.enumCodeValue == keyAELaunchedAsLogInItem { return true }
         // SMAppService login items are started by launchd without that flag; treat a launch
         // shortly after boot while registered as a login launch.
-        return SMAppService.mainApp.status == .enabled && ProcessInfo.processInfo.systemUptime < 300
+        return LoginItem.isEnabled && ProcessInfo.processInfo.systemUptime < 300
     }
     private func checkEnvironment() {
         guard !applying, !terminating else { return }
