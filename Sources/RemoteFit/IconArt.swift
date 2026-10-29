@@ -18,13 +18,13 @@ enum IconArt {
     static let legacySymbols: [String: String] = [
         "clipboard": "doc.on.clipboard",
         "macbook.and.iphone": "display.2",
-        "arrow.down.right.and.arrow.up.left.square": "arrow.down.right.and.arrow.up.left",
-        "arrow.up.left.and.arrow.down.right.square": "arrow.up.left.and.arrow.down.right",
+        "arrow.down.right.and.arrow.up.left.square": "arrow.down.right.and.arrow.up.left.circle",
+        "arrow.up.left.and.arrow.down.right.square": "arrow.up.left.and.arrow.down.right.circle",
         "gauge.with.dots.needle.33percent": "speedometer",
         "chevron.up.2": "chevron.up",
         "chevron.down.2": "chevron.down",
-        "list.bullet.clipboard": "list.bullet",
-        "magnet": "pin.fill",
+        "list.bullet.clipboard": "list.bullet.rectangle",
+        "magnet": "rectangle.arrowtriangle.2.inward",
     ]
 
     static func displaySymbol(_ name: String) -> String {

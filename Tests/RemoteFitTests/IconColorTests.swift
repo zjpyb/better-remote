@@ -76,14 +76,18 @@ final class IconColorTests: XCTestCase {
               let symbols = plist["symbols"] as? [String: String],
               let releases = plist["year_to_release"] as? [String: [String: String]] else { throw XCTSkip("name_availability.plist unavailable") }
         var names = Set(IconArt.wholeBlueSymbols).union(ShortcutIcon.allCases.map { IconArt.displaySymbol($0.rawValue) })
-        names.formUnion(FloatingAction.allCases.map(\.symbol))
+        names.formUnion(FloatingAction.allCases.map(\.symbol) + [FloatingAction.restoreFillSymbol])
         let sources = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent().deletingLastPathComponent()
             .appendingPathComponent("Sources/RemoteFit")
-        let pattern = try NSRegularExpression(pattern: #"(?:systemName|systemImage|symbol|systemSymbolName):\s*"([a-z0-9.]+)""#)
+        // Labelled names plus every dotted literal (ternaries, settingIcon(...)); non-symbols have no availability entry.
+        let patterns = try [#"(?:systemName|systemImage|symbol|systemSymbolName):\s*"([a-z0-9.]+)""#, #""([a-z0-9]+(?:\.[a-z0-9]+)+)""#]
+            .map { try NSRegularExpression(pattern: $0) }
         for file in try FileManager.default.contentsOfDirectory(at: sources, includingPropertiesForKeys: nil) where file.pathExtension == "swift" {
             let text = try String(contentsOf: file, encoding: .utf8)
-            for match in pattern.matches(in: text, range: NSRange(text.startIndex..., in: text)) {
-                if let range = Range(match.range(at: 1), in: text) { names.insert(String(text[range])) }
+            for pattern in patterns {
+                for match in pattern.matches(in: text, range: NSRange(text.startIndex..., in: text)) {
+                    if let range = Range(match.range(at: 1), in: text) { names.insert(String(text[range])) }
+                }
             }
         }
         func macOS(_ name: String) -> Int? {
