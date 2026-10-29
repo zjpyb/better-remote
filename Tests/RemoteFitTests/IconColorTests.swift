@@ -100,6 +100,10 @@ final class IconColorTests: XCTestCase {
         XCTAssertEqual(unmapped.sorted(), [])
         for (name, fallback) in IconArt.legacySymbols {
             XCTAssertLessThanOrEqual(try XCTUnwrap(macOS(fallback), fallback), 12, "\(name) → \(fallback)")
+            XCTAssertNotNil(NSImage(systemSymbolName: fallback, accessibilityDescription: nil), fallback)
+            if NSImage(systemSymbolName: name, accessibilityDescription: nil) == nil {
+                XCTAssertEqual(IconArt.displaySymbol(name), fallback, name)
+            }
         }
     }
 
