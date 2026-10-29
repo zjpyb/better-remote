@@ -45,7 +45,7 @@ private struct PointerHoverModifier: ViewModifier {
             .onValueChange(of: hover.hoveredID == id) { now in changed(now) }
     }
 
-    /// macOS 12 only reports enter/exit, so the pointer sample is taken once on entry.
+    /// macOS 12 has no continuous hover; an AppKit tracking area feeds the same pointer samples.
     @ViewBuilder
     private func tracked(_ content: Content) -> some View {
         if #available(macOS 13, *) {
@@ -56,7 +56,33 @@ private struct PointerHoverModifier: ViewModifier {
                 }
             }
         } else {
-            content.onHover { inside in inside ? hover.moved(over: id) : hover.left(id) }
+            content.background(PointerHoverTracking(id: id))
+        }
+    }
+}
+
+private struct PointerHoverTracking: NSViewRepresentable {
+    let id: String
+    func makeNSView(context: Context) -> TrackingView { TrackingView(id: id) }
+    func updateNSView(_ view: TrackingView, context: Context) { view.id = id }
+
+    final class TrackingView: NSView {
+        var id: String { didSet { if oldValue != id { PointerHover.shared.left(oldValue) } } }
+        init(id: String) { self.id = id; super.init(frame: .zero) }
+        required init?(coder: NSCoder) { nil }
+
+        override func hitTest(_ point: NSPoint) -> NSView? { nil }
+        override func updateTrackingAreas() {
+            super.updateTrackingAreas()
+            trackingAreas.forEach(removeTrackingArea)
+            addTrackingArea(NSTrackingArea(rect: .zero, options: [.mouseEnteredAndExited, .mouseMoved, .activeAlways, .inVisibleRect], owner: self))
+        }
+        override func mouseEntered(with event: NSEvent) { PointerHover.shared.moved(over: id) }
+        override func mouseMoved(with event: NSEvent) { PointerHover.shared.moved(over: id) }
+        override func mouseExited(with event: NSEvent) { PointerHover.shared.left(id) }
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            if window == nil { PointerHover.shared.left(id) }
         }
     }
 }
