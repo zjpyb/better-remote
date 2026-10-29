@@ -9,8 +9,9 @@ final class ShortcutEventRelay {
         let id: Int64
         let events: [CGEvent]
     }
-    private var tap: CFMachPort?
-    private var runLoopSource: CFRunLoopSource?
+    // Also read by the nonisolated deinit; every other access is on the main actor.
+    nonisolated(unsafe) private var tap: CFMachPort?
+    nonisolated(unsafe) private var runLoopSource: CFRunLoopSource?
     private var packets: [Packet] = []
     private var waiters: [CheckedContinuation<Void, Never>] = []
     private var finishRequested = false
@@ -130,7 +131,7 @@ final class ShortcutEventRelay {
         runLoopSource = nil
     }
 
-    isolated deinit {
+    deinit {
         if let tap { CFMachPortInvalidate(tap) }
         if let runLoopSource { CFRunLoopRemoveSource(CFRunLoopGetMain(), runLoopSource, .commonModes) }
     }
