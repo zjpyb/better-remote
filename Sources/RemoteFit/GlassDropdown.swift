@@ -85,8 +85,8 @@ struct GlassDropdown<ID: Hashable & Sendable>: View {
         .accessibilityHint("弹出选项")
         .accessibilityAddTraits(.isButton)
         .accessibilityAction { controller.toggle(label: label, items: items, selected: selection, onSelect: onSelect) }
-        .onChange(of: items) { _, next in controller.update(items: next, selected: selection) }
-        .onChange(of: selection) { _, next in controller.update(items: items, selected: next) }
+        .onValueChange(of: items) { next in controller.update(items: next, selected: selection) }
+        .onValueChange(of: selection) { next in controller.update(items: items, selected: next) }
         .onDisappear { controller.close() }
     }
 
@@ -141,8 +141,8 @@ struct GlassDropdownMenu<ID: Hashable & Sendable>: View {
             if items.count > DesignTokens.dropdownMaxRows {
                 ScrollViewReader { proxy in
                     ScrollView(.vertical) { rows }
-                        .scrollIndicators(.never)
-                        .onChange(of: state.highlighted) { _, index in if let index { proxy.scrollTo(index) } }
+                        .hidesScrollIndicators(never: true)
+                        .onValueChange(of: state.highlighted) { index in if let index { proxy.scrollTo(index) } }
                 }
             } else { rows }
         }

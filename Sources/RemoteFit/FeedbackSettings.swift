@@ -258,18 +258,36 @@ struct FeedbackFormView: View {
 
     private var trimmed: String { model.trimmed }
 
-    var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text(FeedbackCopy.section)
-                .font(.system(size: DesignTokens.fontEmphasis, weight: .semibold))
-                .foregroundStyle(DesignTokens.Colors.textPrimary)
-
+    @ViewBuilder
+    private var messageField: some View {
+        if #available(macOS 14, *) {
             TextField(text: $model.message,
                       prompt: Text(FeedbackCopy.placeholder).font(.system(size: DesignTokens.fontBody, weight: .regular)).foregroundStyle(Color.primary.opacity(0.32)),
                       axis: .vertical) { Text(FeedbackCopy.placeholder) }
                 .textFieldStyle(.plain)
                 .font(.system(size: DesignTokens.fontBody))
                 .lineLimit(4...8)
+        } else {
+            // Four body lines, matching the minimum of the vertical TextField above.
+            TextEditor(text: $model.message)
+                .font(.system(size: DesignTokens.fontBody))
+                .frame(height: 64)
+                .overlay(alignment: .topLeading) {
+                    if model.message.isEmpty {
+                        Text(FeedbackCopy.placeholder).font(.system(size: DesignTokens.fontBody)).foregroundStyle(Color.primary.opacity(0.32))
+                            .padding(.leading, 5).allowsHitTesting(false)
+                    }
+                }
+        }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text(FeedbackCopy.section)
+                .font(.system(size: DesignTokens.fontEmphasis, weight: .semibold))
+                .foregroundStyle(DesignTokens.Colors.textPrimary)
+
+            messageField
                 .disabled(model.sending)
                 .padding(8)
                 .background(DesignTokens.Colors.secondaryFill, in: RoundedRectangle(cornerRadius: DesignTokens.radiusMd, style: .continuous))
@@ -296,7 +314,7 @@ struct FeedbackFormView: View {
                         if model.sending {
                             ProgressView()
                                 .controlSize(.small)
-                                .tint(.secondary)
+                                .tint(Color.secondary)
                         } else {
                             Text(FeedbackCopy.send)
                         }

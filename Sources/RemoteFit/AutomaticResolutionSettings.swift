@@ -55,7 +55,7 @@ struct DeviceListSettings: View {
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-        .scrollIndicators(.hidden)
+        .hidesScrollIndicators()
         .alert("删除设备？", isPresented: Binding(get: { deletingDeviceID != nil }, set: { if !$0 { deletingDeviceID = nil } })) {
             Button("取消", role: .cancel) { deletingDeviceID = nil }
             Button("删除", role: .destructive) {
@@ -63,7 +63,7 @@ struct DeviceListSettings: View {
                 deletingDeviceID = nil
             }
         }
-        .onChange(of: model.preferences.remoteDevices.map(\.id)) { _, ids in
+        .onValueChange(of: model.preferences.remoteDevices.map(\.id)) { ids in
             if let selection, selection != defaultID, !ids.contains(selection) { navigate(nil) }
         }
     }
@@ -302,8 +302,8 @@ struct DeviceConfigurationSettings: View {
                 .opacity(enabled ? 1 : 0.45)
         }.controlSize(.small)
             .onAppear { nameDraft = device?.displayName ?? "" }
-            .onChange(of: editingName) { _, focused in if !focused { saveName() } }
-            .onChange(of: deviceID) { _, _ in nameDraft = device?.displayName ?? "" }
+            .onValueChange(of: editingName) { focused in if !focused { saveName() } }
+            .onValueChange(of: deviceID) { _ in nameDraft = device?.displayName ?? "" }
             .onDisappear { if nameDraft != device?.displayName { saveName() } }
     }
 

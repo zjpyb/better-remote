@@ -41,14 +41,23 @@ private struct PointerHoverModifier: ViewModifier {
     let changed: (Bool) -> Void
     @ObservedObject private var hover = PointerHover.shared
     func body(content: Content) -> some View {
-        content
-            .onContinuousHover { phase in
+        tracked(content)
+            .onValueChange(of: hover.hoveredID == id) { now in changed(now) }
+    }
+
+    /// macOS 12 only reports enter/exit, so the pointer sample is taken once on entry.
+    @ViewBuilder
+    private func tracked(_ content: Content) -> some View {
+        if #available(macOS 13, *) {
+            content.onContinuousHover { phase in
                 switch phase {
                 case .active: hover.moved(over: id)
                 case .ended: hover.left(id)
                 }
             }
-            .onChange(of: hover.hoveredID == id) { _, now in changed(now) }
+        } else {
+            content.onHover { inside in inside ? hover.moved(over: id) : hover.left(id) }
+        }
     }
 }
 

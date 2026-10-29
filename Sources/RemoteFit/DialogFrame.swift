@@ -53,7 +53,7 @@ private struct DialogFrame: ViewModifier {
         GeometryReader { geometry in
             Color.clear
                 .onAppear { naturalHeight = geometry.size.height }
-                .onChange(of: geometry.size.height) { _, height in naturalHeight = height }
+                .onValueChange(of: geometry.size.height) { height in naturalHeight = height }
         }
     }
 }

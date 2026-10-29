@@ -87,9 +87,9 @@ struct SettingsView: View {
         .ignoresSafeArea(.container, edges: .top)
         .frame(minWidth: SettingsWindowLayout.minimumSize.width, idealWidth: SettingsWindowLayout.preferredSize.width,
                minHeight: SettingsWindowLayout.minimumSize.height, idealHeight: SettingsWindowLayout.preferredSize.height)
-        .onGeometryChange(for: Bool.self) { SettingsWindowLayout.isNarrow(contentWidth: $0.size.width) } action: { narrow = $0 }
+        .onSizeChange({ SettingsWindowLayout.isNarrow(contentWidth: $0.width) }) { narrow = $0 }
         .environment(\.settingsNarrow, narrow)
-        .scrollIndicators(.hidden)
+        .hidesScrollIndicators()
         .disabled(model.terminating || model.applying)
         .sheet(item: $draft, content: specEditor)
         .alert("删除「\(pendingDeletion?.name ?? "")」？", isPresented: Binding(
@@ -125,9 +125,14 @@ struct SettingsView: View {
                 .frame(width: side, height: side)
         } else {
             ZStack {
-                RoundedRectangle(cornerRadius: DesignTokens.radiusMd, style: .continuous)
-                    .fill(DesignTokens.Colors.accent.gradient)
-                    .frame(width: side, height: side)
+                Group {
+                    if #available(macOS 13, *) {
+                        RoundedRectangle(cornerRadius: DesignTokens.radiusMd, style: .continuous).fill(DesignTokens.Colors.accent.gradient)
+                    } else {
+                        RoundedRectangle(cornerRadius: DesignTokens.radiusMd, style: .continuous).fill(DesignTokens.Colors.accent)
+                    }
+                }
+                .frame(width: side, height: side)
                 Image(systemName: "display.2")
                     .font(.system(size: side / 2, weight: .medium))
                     .foregroundStyle(.white)
@@ -209,7 +214,7 @@ struct SettingsView: View {
     private func sidebarRow(_ title: String, symbol: String, page target: SettingsPage) -> some View {
         let isSelected = page == target
         return Button {
-            withAnimation(reduceMotion ? nil : .snappy(duration: 0.2)) {
+            withAnimation(reduceMotion ? nil : .snappyIfAvailable(duration: 0.2)) {
                 page = target
             }
         } label: {
@@ -775,7 +780,7 @@ struct SettingsView: View {
             GeometryReader { geometry in
                 Color.clear
                     .onAppear { operationCardSizes[operation.id] = geometry.size }
-                    .onChange(of: geometry.size) { _, size in operationCardSizes[operation.id] = size }
+                    .onValueChange(of: geometry.size) { size in operationCardSizes[operation.id] = size }
             }
         }
         .accessibilityAction(named: "前移") { moveOperation(operation.id, direction: -1) }
@@ -821,7 +826,7 @@ private struct OperationCardDropDelegate: DropDelegate {
         guard let draggedID, draggedID != targetID,
               let source = operations.firstIndex(where: { $0.id == draggedID }),
               let target = operations.firstIndex(where: { $0.id == targetID }) else { return }
-        withAnimation(reduceMotion ? nil : .snappy(duration: 0.2)) {
+        withAnimation(reduceMotion ? nil : .snappyIfAvailable(duration: 0.2)) {
             move(IndexSet(integer: source), target > source ? target + 1 : target)
         }
     }
@@ -1189,7 +1194,7 @@ struct DeviceTemplatesView: View {
         }
         .padding(20).dialogFrame(width: Self.designedWidth, height: 510)
         .background(DesignTokens.Colors.pageBackground)
-        .onChange(of: categoryID) { _, _ in brandID = "" }
+        .onValueChange(of: categoryID) { _ in brandID = "" }
         .onAppear {
             do {
                 let override = FileManager.default.homeDirectoryForCurrentUser

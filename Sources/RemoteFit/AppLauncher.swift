@@ -73,7 +73,7 @@ struct AppLauncherView: View {
                         .frame(maxWidth: .infinity, alignment: model.side == .right ? .trailing : .leading)
                         .padding(.vertical, DesignTokens.spacingXs)
                     }
-                    .scrollIndicators(.never, axes: .vertical)
+                    .hidesScrollIndicators(never: true, axes: .vertical)
                     .overflowEdgeFade()
                 }
             }
@@ -83,7 +83,7 @@ struct AppLauncherView: View {
         .background(Color.clear)
         .foregroundStyle(Color.primary)
         .onExitCommand(perform: model.close)
-        .onChange(of: model.presentationID) { _, _ in previewedAppID = nil; pressedAppID = nil }
+        .onValueChange(of: model.presentationID) { _ in previewedAppID = nil; pressedAppID = nil }
     }
 
     /// Right-docked panels fill rows from the toolbar edge inward, so a partial last row hugs the toolbar.

@@ -34,7 +34,7 @@ struct ApplicationShortcutsSettings: View {
             ForEach(model.preferences.applicationShortcuts) { group in
                 applicationCard(group)
             }
-            Button("添加应用", systemImage: "plus") { choosingApplication = true }
+            Button { choosingApplication = true } label: { Label("添加应用", systemImage: "plus") }
                 .buttonStyle(DSSecondaryButtonStyle()).controlSize(.small)
         }
         .sheet(isPresented: $choosingApplication) {
@@ -101,7 +101,7 @@ struct ApplicationShortcutsSettings: View {
                     .accessibilityLabel(collapsedApps.contains(group.id) ? "展开\(group.name)操作" : "收起\(group.name)操作")
             }
             if !collapsedApps.contains(group.id) {
-                ShortcutFlowLayout(spacing: 8) {
+                ShortcutFlow(spacing: 8) {
                     ForEach(group.shortcuts) { shortcut in
                         Button { editing = EditDraft(bundleID: group.id, shortcut: shortcut) } label: {
                             Label { Text(shortcut.name) } icon: { IconArt.blueImage(shortcut.icon.rawValue, pointSize: DesignTokens.fontCaption, weight: .medium) }
@@ -131,7 +131,7 @@ struct ApplicationShortcutsSettings: View {
                             }
                         }
                     }
-                    Button("添加操作", systemImage: "plus") { addShortcut(to: group) }
+                    Button { addShortcut(to: group) } label: { Label("添加操作", systemImage: "plus") }
                         .font(.system(size: DesignTokens.fontCaption, weight: .medium)).buttonStyle(DSSecondaryButtonStyle()).controlSize(.small)
                         .frame(minHeight: 24)
                 }.transition(.opacity)
@@ -149,7 +149,7 @@ struct ApplicationShortcutsSettings: View {
     private func moveShortcut(_ id: String, to targetID: String, in bundleID: String) {
         guard var group = model.preferences.applicationShortcuts.first(where: { $0.id == bundleID }),
               group.moveShortcut(id, to: targetID) else { return }
-        withAnimation(reduceMotion ? nil : .snappy(duration: 0.2)) { _ = saveGroup(group) }
+        withAnimation(reduceMotion ? nil : .snappyIfAvailable(duration: 0.2)) { _ = saveGroup(group) }
     }
 
     private func moveShortcut(_ id: String, by offset: Int, in bundleID: String) {
@@ -201,6 +201,19 @@ private struct ApplicationShortcutDropDelegate: DropDelegate {
     }
 }
 
+private struct ShortcutFlow<Content: View>: View {
+    let spacing: CGFloat
+    @ViewBuilder let content: Content
+    var body: some View {
+        if #available(macOS 13, *) {
+            ShortcutFlowLayout(spacing: spacing) { content }
+        } else {
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 96), spacing: spacing, alignment: .leading)], alignment: .leading, spacing: spacing) { content }
+        }
+    }
+}
+
+@available(macOS 13, *)
 private struct ShortcutFlowLayout: Layout {
     let spacing: CGFloat
     func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {

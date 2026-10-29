@@ -88,7 +88,7 @@ struct ShortcutEditor: View {
         GeometryReader { geometry in
             Color.clear
                 .onAppear { update(geometry.size.height) }
-                .onChange(of: geometry.size.height) { _, height in update(height) }
+                .onValueChange(of: geometry.size.height) { height in update(height) }
         }
     }
 
@@ -122,7 +122,7 @@ struct ShortcutEditor: View {
             TextField("操作名称", text: $name)
                 .textFieldStyle(.roundedBorder)
                 .controlSize(.regular)
-                .onChange(of: name) { _, newName in
+                .onValueChange(of: name) { newName in
                     if !userExplicitlySelectedIcon, let suggested = ShortcutIcon.suggested(for: newName, keyLabel: key?.label ?? "") {
                         icon = suggested
                     }

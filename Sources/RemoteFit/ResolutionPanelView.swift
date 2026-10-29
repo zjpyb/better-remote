@@ -161,13 +161,13 @@ struct ResolutionPanelView: View {
                     GeometryReader { content in
                         Color.clear
                             .onAppear { onContentHeight(content.size.height + DesignTokens.spacingLg * 2) }
-                            .onChange(of: content.size.height) { _, height in onContentHeight(height + DesignTokens.spacingLg * 2) }
+                            .onValueChange(of: content.size.height) { height in onContentHeight(height + DesignTokens.spacingLg * 2) }
                     }
                 }
                 .frame(maxWidth: .infinity, minHeight: geometry.size.height, alignment: contentAlignment)
             }
-            .scrollIndicators(.never, axes: .vertical)
-            .defaultScrollAnchor(model.preferences.toolbarSide == .bottom ? .bottom : .top)
+            .hidesScrollIndicators(never: true, axes: .vertical)
+            .defaultScrollAnchorIfAvailable(model.preferences.toolbarSide == .bottom ? .bottom : .top)
             .overflowEdgeFade()
             }
         }
